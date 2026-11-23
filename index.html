@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>写一句祝福给我 ♡ · Earth Online</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { min-height:100%; }
+  body {
+    background: radial-gradient(ellipse at 50% 25%, #1b1f3a 0%, #0b0d18 55%, #05060c 100%);
+    font-family: Georgia, "Songti SC", serif; color:#e8e6f0;
+    padding: 26px 16px 40px; overflow-x:hidden;
+  }
+  .stars {
+    position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.5;
+    background-image:
+      radial-gradient(1px 1px at 20px 30px, #fff, transparent),
+      radial-gradient(1px 1px at 120px 80px, #cfd8ff, transparent),
+      radial-gradient(2px 2px at 200px 160px, #fff, transparent),
+      radial-gradient(1px 1px at 300px 60px, #e0d4ff, transparent),
+      radial-gradient(1px 1px at 380px 220px, #fff, transparent);
+    background-size:420px 300px; animation: drift 160s linear infinite;
+  }
+  @keyframes drift { to { transform: translateY(-300px); } }
+  .wrap { position:relative; z-index:2; max-width:440px; margin:0 auto; }
+
+  /* 顶部标题区 */
+  .header { text-align:center; margin-bottom:12px; }
+  .kicker { font-size:11px; letter-spacing:5px; color:#a9b2d8; margin-bottom:8px; }
+  h1 {
+    font-weight:normal; font-size:27px; letter-spacing:3px;
+    font-family:"Xingkai SC","STXingkai","Kaiti SC","STKaiti",KaiTi,"楷体","Songti SC",serif;
+    color:#ffd6e8; text-shadow:0 0 20px rgba(255,180,215,.3); margin-bottom:8px;
+  }
+  .lead { text-align:center; font-size:12.5px; line-height:1.9; color:#9aa4cc; letter-spacing:1px; margin-bottom:12px; }
+  .lead em { color:#ffd6e8; font-style:normal; }
+  .state { text-align:center; font-size:11px; letter-spacing:1px; line-height:1.7; color:#a8e8c8; margin-bottom:16px; min-height:18px; }
+  .state.err { color:#ffb9d2; }
+  .cap-strip {
+    margin: 0 auto 16px; max-width: 360px; padding: 12px 14px 10px; border-radius: 14px;
+    border: 1px dashed rgba(255,214,232,.4); background: rgba(255,214,232,.05);
+    text-align: center;
+  }
+  .cap-strip .k { font-size: 9.5px; letter-spacing: 3px; color: #8f9bd0; margin-bottom: 7px; }
+  .cap-strip .cd { font-size: 15px; letter-spacing: 1px; color: #ffe6b8; }
+  .cap-strip .cd b { font-weight: normal; font-size: 19px; }
+  .cap-strip .u { font-size: 10px; letter-spacing: 1px; color: #c9d8ff; margin-top: 7px; }
+  .cap-strip.open { border-color: rgba(168,232,200,.5); background: rgba(120,200,160,.08); }
+  .cap-strip.open .u { color: #a8e8c8; }
+
+  /* 卡片通用 */
+  .card, .bcard {
+    padding:22px 20px 20px; border-radius:20px;
+    border:1px solid rgba(180,190,255,.22);
+    background:linear-gradient(160deg, rgba(34,34,62,.94), rgba(18,21,40,.95));
+    box-shadow:0 18px 40px rgba(0,0,0,.4);
+    animation: rise .9s cubic-bezier(.2,.8,.2,1) both;
+  }
+  @keyframes rise { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:none} }
+  .row { margin-bottom:15px; }
+  .label { font-size:11px; letter-spacing:2px; color:#9aa4cc; margin-bottom:7px; }
+  .inp, .ta {
+    width:100%; padding:11px 13px; border-radius:10px; box-sizing:border-box;
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,200,225,.28);
+    color:#f2eef8; font-family:inherit; font-size:14px; outline:none;
+  }
+  .ta { min-height:104px; resize:none; line-height:1.8; }
+  .inp:focus, .ta:focus { border-color:#ffd6e8; box-shadow:0 0 14px rgba(255,190,220,.18); }
+  .inp::placeholder, .ta::placeholder { color:#727ca6; }
+  .chips { display:flex; flex-wrap:wrap; gap:7px; }
+  .chip {
+    padding:6px 12px; border-radius:99px; cursor:pointer; font-family:inherit;
+    font-size:12px; letter-spacing:1px; color:#cfd8ff;
+    background:rgba(255,255,255,.04); border:1px solid rgba(170,180,255,.25); transition:all .2s;
+  }
+  .chip.on { color:#0c0f1e; background:linear-gradient(90deg,#ffe0b0,#ffc7de); border-color:transparent; }
+  .chip.st { font-size:17px; padding:4px 10px; line-height:1.2; }
+
+  .btn {
+    display:block; width:100%; padding:13px 20px; margin-top:6px;
+    font-family:inherit; font-size:14px; letter-spacing:3px; color:#0c0f1e;
+    background:linear-gradient(90deg,#b8e8c8,#c9d8ff); border:none; border-radius:99px;
+    cursor:pointer; box-shadow:0 0 20px rgba(180,220,255,.25); transition:transform .2s;
+  }
+  .btn:active { transform:scale(.97); }
+  .btn:disabled { opacity:.55; cursor:default; }
+  .btn.ghost { background:transparent; color:#cfd8ff; border:1px solid rgba(160,170,255,.4); box-shadow:none; }
+  .btn.small { display:inline-block; width:auto; padding:10px 22px; font-size:12px; letter-spacing:2px; margin:8px 4px 0 0; }
+  .hint { margin-top:14px; text-align:center; font-size:11.5px; line-height:1.9; color:#8f99c2; letter-spacing:1px; }
+
+  .result { display:none; margin-top:20px; }
+  .result.show { display:block; animation: flip .7s cubic-bezier(.2,.9,.2,1) both; }
+  @keyframes flip { from{opacity:0;transform:rotateY(-35deg) scale(.96)} to{opacity:1;transform:none} }
+  .bcard { position:relative; text-align:left; border-color:rgba(255,214,232,.4);
+           background:linear-gradient(155deg, rgba(64,48,88,.96), rgba(24,26,52,.97)); }
+  .bcard .bk { font-size:10.5px; letter-spacing:3px; color:#c9d8ff; }
+  .bcard .to { margin-top:10px; font-size:12px; letter-spacing:1px; color:#9aa4cc; }
+  .bcard .msg {
+    margin:16px 0 18px; font-size:18px; line-height:1.85; letter-spacing:1px; color:#ffe6b8;
+    font-family:"Xingkai SC","STXingkai","Kaiti SC","STKaiti",KaiTi,"楷体","Songti SC",serif;
+    word-break:break-word;
+  }
+  .bcard .from { font-size:13.5px; color:#ffd6e8; letter-spacing:1px; }
+  .bcard .rel { font-size:10px; color:#c9d8ff; border:1px solid rgba(201,216,255,.35); padding:2px 9px; border-radius:99px; margin-left:8px; }
+  .bcard .time { margin-top:12px; font-size:10.5px; color:#8f99c2; letter-spacing:1px; }
+  .bcard .stamp {
+    position:absolute; right:18px; top:18px; width:42px; height:42px; border-radius:50%;
+    border:1px dashed rgba(255,214,232,.55); display:flex; align-items:center; justify-content:center;
+    font-size:20px; background:rgba(255,214,232,.06);
+  }
+  .posted {
+    display:none; margin-top:14px; padding:13px 14px; border-radius:12px;
+    border:1px solid rgba(168,232,200,.4); background:rgba(120,200,160,.09);
+    color:#a8e8c8; font-size:12.5px; line-height:1.9; letter-spacing:1px; text-align:center;
+  }
+  .posted.show { display:block; animation: rise .5s ease both; }
+  .posted.err { border-color:rgba(255,185,210,.4); background:rgba(255,150,190,.08); color:#ffb9d2; }
+  .foot { text-align:center; margin-top:26px; font-size:11px; letter-spacing:2px; color:#6f78a0; }
+  @media (max-width:380px){ h1{font-size:23px} .bcard .msg{font-size:16px} }
+
+  /* ====== 祝福墙视图样式 ====== */
+  #wallView { display: none; }
+  .wall-header { text-align:center; margin-bottom:20px; }
+  .wall-header .back-btn { display:inline-block; padding:6px 16px; font-size:12px; color:#cfd8ff; text-decoration:none; border:1px solid rgba(160,170,255,.4); border-radius:99px; background:rgba(255,255,255,.04); margin-top:8px; cursor:pointer;}
+  .loading { text-align:center; font-size:13px; color:#9aa4cc; margin:40px 0; letter-spacing:1px; }
+  .wall-grid { display:flex; flex-direction:column; gap:16px; }
+  .wall-grid .bcard { padding: 20px; border-radius: 16px; animation: rise .6s ease both; }
+  .wall-grid .bcard .to { font-size: 11px; margin-bottom: 12px; }
+  .wall-grid .bcard .msg { font-size: 16px; line-height: 1.8; margin-bottom: 14px; }
+  .wall-grid .bcard .msg.locked { color: #8f99c2; font-style: italic; font-size: 14px; }
+  .wall-grid .bcard .footer { display: flex; justify-content: space-between; align-items: flex-end; }
+  .wall-grid .bcard .user { font-size: 13px; color: #ffd6e8; }
+  .wall-grid .bcard .time { margin-top: 0; font-size: 10px; color: #6f78a0; }
+  .wall-grid .bcard .stamp { width: 36px; height: 36px; font-size: 18px; right: 16px; top: 16px; }
+</style>
+</head>
+<body>
+<div class="stars"></div>
+<div class="wrap">
+
+  <!-- ================= 表单视图 ================= -->
+  <div id="formView">
+    <div class="header">
+      <div class="kicker">EARTH ONLINE · INBOX 001</div>
+      <h1>写一句祝福给我 ♡</h1>
+      <p class="lead">今天是 <em>Chapter 14</em> 上线日。<br>写一句，封进时间胶囊，<em>明年今日</em>再拆开 ✦</p>
+    </div>
+
+    <div class="cap-strip" id="capStrip">
+      <div class="k">TIME CAPSULE · 2026 → 2027</div>
+      <div class="cd" id="capCd">还有 <b>—</b> 天 <b>—</b> 时 <b>—</b> 分 <b>—</b> 秒</div>
+      <div class="u" id="capUnlock">🔒 加载中…</div>
+    </div>
+    <p class="state" id="state">☁ 时间胶囊在线 · 写完封存起来，到点大家才能看到</p>
+
+    <div class="card" id="formCard">
+      <div class="row">
+        <div class="label">你是谁 ✦</div>
+        <input class="inp" id="nm" maxlength="12" placeholder="你的名字 / 昵称">
+      </div>
+      <div class="row">
+        <div class="label">我们是</div>
+        <div class="chips" id="rels"></div>
+      </div>
+      <div class="row">
+        <div class="label">想对我说 ♡</div>
+        <textarea class="ta" id="mg" maxlength="60" placeholder="写一句祝福给我吧（60 字内）"></textarea>
+      </div>
+      <div class="row">
+        <div class="label">随信附上</div>
+        <div class="chips" id="sts"></div>
+      </div>
+      <button class="btn" id="post">🔒 封存祝福 ♡</button>
+      <p class="hint">封存后现在谁也看不到（包括你），到 2027.11.23 自动解封 ✦<br>不用发图、不用传链接回来</p>
+    </div>
+
+    <div class="result" id="result">
+      <div class="bcard">
+        <span class="stamp" id="rSt">🫐</span>
+        <div class="bk">A BLESSING FOR YOU · NO.14</div>
+        <div class="to">To · Chapter 14 的你</div>
+        <div class="msg" id="rMsg"></div>
+        <div><span class="from" id="rFrom"></span><span class="rel" id="rRel"></span></div>
+        <div class="time" id="rTime"></div>
+      </div>
+      <div class="posted" id="posted"></div>
+      <div style="text-align:center">
+        <button class="btn small ghost" id="again">再写一张 ♡</button>
+        <button class="btn small ghost" id="goWall">去看看祝福墙 →</button>
+      </div>
+    </div>
+
+    <div class="foot">🫐 Earth Online · 2026.11.23</div>
+  </div>
+
+  <!-- ================= 祝福墙视图 ================= -->
+  <div id="wallView">
+    <div class="wall-header">
+      <div class="kicker">BLESSING WALL · NO.14</div>
+      <h1>大家的祝福 ♡</h1>
+      <button class="back-btn" id="goBack">← 去写一张</button>
+    </div>
+    <div id="wallLoading" class="loading">☁ 正在接收来自星空的祝福…</div>
+    <div class="wall-grid" id="wallGrid"></div>
+    <div class="foot" style="margin-top:30px;">🫐 Earth Online · 2026.11.23</div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  const $   = id => document.getElementById(id);
+  const pad = n => String(n).padStart(2, '0');
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  const TOPIC  = 'earthonline-ch14-blessings-20261123-k9x7';
+  const URLT   = 'https://ntfy.sh/' + TOPIC;
+  const UNLOCK = new Date(2027, 10, 23, 0, 0, 0);
+  const unlocked = () => Date.now() >= UNLOCK.getTime();
+
+  const UNLOCK_TXT = UNLOCK.getFullYear() + '.' + pad(UNLOCK.getMonth() + 1) + '.' + pad(UNLOCK.getDate()) + ' ' + pad(UNLOCK.getHours()) + ':' + pad(UNLOCK.getMinutes());
+  const KEY_MINE = 'bless-mine-v2';
+  const KEY_PENDING = 'bless-pending-v2';
+  const MAX_KEEP = 50;
+  const TIMEOUT_MS = 12000;
+
+  const store = {
+    get(k){ try { const v = JSON.parse(localStorage.getItem(k) || '[]'); return Array.isArray(v) ? v : []; } catch (_) { return []; } },
+    set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch (_) {} }
+  };
+
+  async function send(payload){
+    const ctl = new AbortController();
+    const timer = setTimeout(() => ctl.abort(), TIMEOUT_MS);
+    try {
+      return await fetch(URLT, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=UTF-8' }, body: JSON.stringify(payload), signal: ctl.signal });
+    } finally { clearTimeout(timer); }
+  }
+
+  /* ================= 倒计时 ================= */
+  let capTimer = null;
+  function paintCap(){
+    if (unlocked()){
+      if (capTimer){ clearInterval(capTimer); capTimer = null; }
+      $('capStrip').classList.add('open');
+      $('capCd').innerHTML = '🎉 胶囊已解封';
+      $('capUnlock').textContent = '现在写下的祝福会立刻上墙 ✦';
+      $('state').textContent = '☁ 胶囊已解封 · 写完立刻上墙';
+      $('post').textContent = '☁ 上传祝福 ♡';
+      return true;
+    }
+    const t = Math.floor(Math.max(0, UNLOCK.getTime() - Date.now()) / 1000);
+    $('capCd').innerHTML = '还有 <b>' + Math.floor(t / 86400) + '</b> 天 <b>' + pad(Math.floor(t / 3600) % 24) + '</b> 时 <b>' + pad(Math.floor(t / 60) % 60) + '</b> 分 <b>' + pad(t % 60) + '</b> 秒';
+    return false;
+  }
+  $('capUnlock').textContent = '🔒 ' + UNLOCK_TXT + ' 自动解封';
+  if (!paintCap()) capTimer = setInterval(paintCap, 1000);
+
+  /* ================= 选项 ================= */
+  const RELS = ['家人', '老朋友', '同学', '同事', '网友', '神秘人', '未来的我'];
+  const STS  = ['🫐', '🌙', '✦', '🍰', '💌', '🎂', '🌌'];
+  let rel = '老朋友', st = '🫐', cur = null;
+
+  function buildChips(box, arr, def, onPick){
+    const isEmoji = box.id === 'sts';
+    box.innerHTML = arr.map(v => '<button type="button" class="chip' + (isEmoji ? ' st' : '') + (v === def ? ' on' : '') + '" data-v="' + v + '">' + v + '</button>').join('');
+    box.addEventListener('click', e => {
+      const btn = e.target.closest('.chip');
+      if (!btn || !box.contains(btn)) return;
+      box.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === btn));
+      onPick(btn.dataset.v);
+    });
+  }
+  buildChips($('rels'), RELS, rel, v => { rel = v; });
+  buildChips($('sts'),  STS,  st,  v => { st  = v; });
+
+  /* ================= 提交表单 ================= */
+  let busy = false;
+  const btnIdleText = () => unlocked() ? '☁ 上传祝福 ♡' : '🔒 封存祝福 ♡';
+
+  $('post').addEventListener('click', async () => {
+    if (busy) return;
+    busy = true;
+    const btn = $('post');
+    btn.disabled = true;
+    btn.textContent = '正在封存…';
+
+    const d = new Date();
+    cur = {
+      id: uid(),
+      name: ($('nm').value.trim() || '匿名旅人').slice(0, 12),
+      msg: ($('mg').value.trim() || '（只留了个名字，也算来过 ♡）').slice(0, 60),
+      rel: rel, st: st,
+      time: pad(d.getMonth() + 1) + '.' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()),
+      ts: Date.now()
+    };
+
+    let ok = false;
+    try {
+      const r = await send(cur);
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      ok = true;
+    } catch (_) { ok = false; }
+
+    if (ok){
+      const mine = store.get(KEY_MINE);
+      if (!mine.some(x => x.id === cur.id)){ mine.unshift(cur); store.set(KEY_MINE, mine.slice(0, MAX_KEEP)); }
+    } else {
+      const q = store.get(KEY_PENDING);
+      if (!q.some(x => x.id === cur.id)) q.unshift(cur);
+      store.set(KEY_PENDING, q.slice(0, MAX_KEEP));
+    }
+
+    show(ok);
+    busy = false;
+    btn.disabled = false;
+    btn.textContent = btnIdleText();
+  });
+
+  function show(ok){
+    $('rSt').textContent = cur.st;
+    $('rMsg').textContent = unlocked() ? '「' + cur.msg + '」' : '✉️ 内容已封存，暂不显示';
+    $('rFrom').textContent = '— ' + cur.name;
+    $('rRel').textContent = cur.rel;
+    $('rTime').textContent = cur.time + ' ' + (unlocked() ? '寄达' : '封存') + ' · ' + (ok ? (unlocked() ? '☁ 全站可见' : '🔒 已封存') : '⚠ 先存本机') + ' ♡';
+
+    const p = $('posted');
+    p.className = 'posted show' + (ok ? '' : ' err');
+    p.innerHTML = ok
+      ? (unlocked() ? '✦ 已经挂上祝福墙了！<br>TA 打开就能看到这一封 ♡' : '✦ 已经封进时间胶囊了！<br>现在谁也看不到里面写了什么，<br>' + UNLOCK_TXT + ' 自动解封，到时候一起拆 ♡')
+      : '暂时没连上（网络不通或接口超时），<br>已经先替你收在这台设备里了，<br>联网后再点一次「封存」就会补传 ♡';
+
+    $('result').classList.add('show');
+    $('formCard').style.display = 'none';
+    try { $('result').scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch(e){}
+  }
+
+  $('again').addEventListener('click', () => {
+    $('result').classList.remove('show');
+    $('formCard').style.display = '';
+    $('mg').value = ''; cur = null;
+    try { $('formCard').scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch(e){}
+  });
+
+  /* ================= 视图切换逻辑 ================= */
+  $('goWall').addEventListener('click', () => {
+    $('formView').style.display = 'none';
+    $('wallView').style.display = 'block';
+    scrollToTop();
+    loadWall();
+  });
+
+  $('goBack').addEventListener('click', () => {
+    $('wallView').style.display = 'none';
+    $('formView').style.display = 'block';
+    scrollToTop();
+  });
+
+  /* ================= 祝福墙逻辑 ================= */
+  let wallLoaded = false;
+  const renderedIds = new Set();
+
+  function renderCard(data) {
+    if (!data || !data.id || renderedIds.has(data.id)) return;
+    renderedIds.add(data.id);
+
+    const msgHtml = unlocked() ? `<div class="msg">「${data.msg}」</div>` : `<div class="msg locked">✉️ 内容将在 2027.11.23 解封，敬请期待…</div>`;
+    const card = document.createElement('div');
+    card.className = 'bcard';
+    const safeName = (data.name || '匿名旅人').replace(/</g, "&lt;");
+    const safeRel = (data.rel || '').replace(/</g, "&lt;");
+    const safeSt = (data.st || '🫐').replace(/</g, "&lt;");
+    const safeTime = (data.time || '').replace(/</g, "&lt;");
+
+    card.innerHTML = `
+      <span class="stamp">${safeSt}</span>
+      <div class="to">To · Chapter 14 的你</div>
+      ${msgHtml}
+      <div class="footer">
+        <div><span class="user">— ${safeName}</span><span class="rel">${safeRel}</span></div>
+        <div class="time">${safeTime}</div>
+      </div>
+    `;
+    $('wallGrid').appendChild(card);
+  }
+
+  async function loadWall() {
+    if (wallLoaded) return;
+    wallLoaded = true;
+
+    try {
+      const res = await fetch(`https://ntfy.sh/${TOPIC}/json?poll=1&since=all`);
+      if (!res.ok) throw new Error('网络错误');
+      const text = await res.text();
+      const lines = text.trim().split('\n');
+      const messages = [];
+      
+      for (let line of lines) {
+        if (!line.trim()) continue;
+        try {
+          const obj = JSON.parse(line);
+          if (obj.event === 'message' && obj.message) {
+            const innerData = JSON.parse(obj.message);
+            messages.push({ ...innerData, ntfyTime: obj.time });
+          }
+        } catch(e) {}
+      }
+      
+      messages.sort((a, b) => b.ts - a.ts);
+      $('wallLoading').style.display = 'none';
+      
+      if (messages.length === 0) {
+        $('wallGrid').innerHTML = '<div style="text-align:center; color:#8f99c2; font-size:13px;">还没有人写信哦，快去写第一张吧！</div>';
+      } else {
+        messages.forEach(renderCard);
+      }
+    } catch (e) {
+      $('wallLoading').textContent = '☁ 网络开小差了，暂时没连上。';
+    }
+
+    // 建立实时连接
+    const ev = new EventSource(`https://ntfy.sh/${TOPIC}/sse`);
+    ev.onmessage = function(e) {
+      try {
+        const obj = JSON.parse(e.data);
+        if (obj.event === 'message' && obj.message) {
+          const innerData = JSON.parse(obj.message);
+          if (!renderedIds.has(innerData.id)) {
+             if ($('wallGrid').innerHTML.includes('还没有人写信')) $('wallGrid').innerHTML = '';
+             renderCard(innerData);
+             if ($('wallGrid').firstChild) {
+                $('wallGrid').insertBefore($('wallGrid').lastElementChild, $('wallGrid').firstChild);
+             }
+          }
+        }
+      } catch(e){}
+    };
+  }
+
+  /* ================= 补传逻辑 ================= */
+  window.addEventListener('load', async () => {
+    const q = store.get(KEY_PENDING);
+    if (!q.length) return;
+    const left = []; let done = 0;
+    for (const b of q){
+      try {
+        const r = await send(b);
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        done++;
+      } catch (_) { left.push(b); }
+    }
+    store.set(KEY_PENDING, left);
+  });
+
+})();
+</script>
+</body>
+          </html>
